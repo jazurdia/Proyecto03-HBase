@@ -1,0 +1,28 @@
+{
+    "metadata": {
+        "enabled": true,
+        "name": "test",
+        "creation_timeStamp": 1234567890
+    },
+
+    "index_column":[
+        {"timeStamp": 1234567890, "value": "2021/l003"},
+        {"timeStamp": 1234567890, "value": "2021/l001"}
+    ],
+    
+    "families": {
+        "datos contacto": {
+            "version": 1,
+            "columns":{
+                "nombre": [
+                    {"timeStamp":1234567890, "value": "david"},
+                    {"timeStamp":1234567890, "value": "Pedro"}
+                ],
+                "apellido": [
+                    {"timeStamp":1234567890, "value": "Juan"},
+                    {"timeStamp":1234567890, "value": "Suriano"}
+                ]
+            }
+        }
+    }
+}
