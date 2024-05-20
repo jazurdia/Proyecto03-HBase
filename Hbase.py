@@ -6,6 +6,7 @@ from Hfile import Hfile
 
 base = "hfiles/"
 
+errores = []
 
 def create_table(table_name, families=None):
     hfile = load_table(table_name)
@@ -55,46 +56,68 @@ def disable_table(hfile):
 def enable_table(hfile):
     hfile.metadata["enabled"] = True
     save_table(hfile)
-    
-
 
 def is_enable(hfile):
     return hfile.metadata["enabled"]
         
+## metodos para usarse en alter_table. 
+
+
+def add_column_families(hfile, family_names): 
+    if hfile.metadata["enabled"]:
+        for family_name in family_names:
+            hfile.data["families"][family_name] = {}
+        save_table(hfile)
+        return True
+    else:
+        errores.append("Table is disabled")
+        return False
+
+
+def delete_column_families(hfile, family_names): 
+    if hfile.metadata["enabled"]:
+        for family_name in family_names:
+            if family_name in hfile.data["families"]:
+                del hfile.data["families"][family_name]
+            else:
+                errores.append(f"Family {family_name} does not exist")
+        save_table(hfile)
+        return True
+    else:
+        errores.append("Table is disabled")
+        return False
+
+
+# valdria la pena pensar si alter debería ser manejado desde el frontend, o si se hace un método alter. 
+
+# alter 'my_table', 'new_cf' 
+# o 
+# alter 'my_table', {NAME => 'old_cf', METHOD => 'delete'}
+
+def alter_table(hfile, family_names, method=None):
+    if method == "delete":
+        return delete_column_families(hfile, family_names)
+    else:
+        return add_column_families(hfile, family_names)
+
+
 if __name__ == "__main__":
 
     os.system("cls")
 
-    print(list_tables())
+    create_table("my_table", ["family1", "family2"])
+    hfile = load_table("my_table")
+    print(f"Metadata of {hfile.metadata["name"]}: {hfile.metadata}")
+    print(f"Data of {hfile.metadata["name"]}: {hfile.data}")
 
+    # probar alter table
+    alter_table(hfile, ["family3", "family4"])
+    print(f"Data of {hfile.metadata["name"]}: {hfile.data}")
+    alter_table(hfile, ["family1", "family4"], "delete")
+    print(f"Data of {hfile.metadata["name"]}: {hfile.data}")
 
-    ob = Hfile("test")
-    print(f"Metadata: \n{ob.metadata}")
-    print(f"\nData: \n{ob.data}")
+    print(f"errores: {errores}")
 
-    new_name = "test4"
-    families = ["fam1", "fam2"]
-    create_table(new_name, families)
-    tablaPrueba = load_table(new_name)
-    print(f"Metadata: \n{tablaPrueba.metadata}")
-    print(f"\nData: \n{tablaPrueba.data}")
-    #save_table(tablaPrueba)
-
-    print("*********************************")
-
-    print(list_tables())
-
-    # prueba de is_enable()
-    ans = is_enable(tablaPrueba)
-    print(ans)
-    
-    # prueba de disable_table()
-    disable_table(tablaPrueba)
-    print(is_enable(tablaPrueba))
-    
-    # prueba de enable_table()
-    enable_table(tablaPrueba)
-    print(is_enable(tablaPrueba))
 
 
     
