@@ -7,9 +7,15 @@ from Hfile import Hfile
 base = "hfiles/"
 
 
-def create_table(table_name):
+def create_table(table_name, families=None):
     hfile = load_table(table_name)
     if hfile.data == None or hfile.metadata == None:
+        
+        fam = {}
+        if families is not None:
+            for family in families:
+                fam[family] = {}
+
         hfile.metadata = {
             "enabled": True,
             "name": table_name,
@@ -17,11 +23,13 @@ def create_table(table_name):
         }
         hfile.data = {
             "index_column": [],
-            "families": {}
+            "families": fam
         }
+        
         hfile.save_hfile()
     else:
         print("Table already exists") # Cambiar
+
 
 
 def load_table(table_name):
@@ -40,7 +48,19 @@ def list_tables():
     
     return tables  # return the list of tables
 
+def disable_table(hfile):
+    hfile.metadata["enabled"] = False
+    save_table(hfile)
 
+def enable_table(hfile):
+    hfile.metadata["enabled"] = True
+    save_table(hfile)
+    
+
+
+def is_enable(hfile):
+    return hfile.metadata["enabled"]
+        
 if __name__ == "__main__":
 
     os.system("cls")
@@ -52,14 +72,30 @@ if __name__ == "__main__":
     print(f"Metadata: \n{ob.metadata}")
     print(f"\nData: \n{ob.data}")
 
-    new_name = "test2"
-    
-    create_table(new_name)
+    new_name = "test4"
+    families = ["fam1", "fam2"]
+    create_table(new_name, families)
     tablaPrueba = load_table(new_name)
     print(f"Metadata: \n{tablaPrueba.metadata}")
     print(f"\nData: \n{tablaPrueba.data}")
     #save_table(tablaPrueba)
 
+    print("*********************************")
+
     print(list_tables())
+
+    # prueba de is_enable()
+    ans = is_enable(tablaPrueba)
+    print(ans)
+    
+    # prueba de disable_table()
+    disable_table(tablaPrueba)
+    print(is_enable(tablaPrueba))
+    
+    # prueba de enable_table()
+    enable_table(tablaPrueba)
+    print(is_enable(tablaPrueba))
+
+
     
 

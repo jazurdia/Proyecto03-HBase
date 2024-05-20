@@ -10,14 +10,14 @@ class Hfile:
         if os.path.exists(self.file_path):
             with open(self.file_path, 'r') as file:
                 data = json.load(file)
-                return data.get('metadata', None), {key: data[key] for key in data if key != 'metadata'}
+                return data.get('metadata', None), data.get('data', None)
         else:
             return None, None
 
     def save_hfile(self):
+        data = {
+            'data': self.data,
+            'metadata': self.metadata
+        }
         with open(self.file_path, 'w') as file:
-            data = {'metadata': self.metadata, 'data': self.data}
             json.dump(data, file, indent=4)
-
-    
-        
