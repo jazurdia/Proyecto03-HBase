@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import time
 
 from Hfile import Hfile
@@ -99,24 +100,77 @@ def alter_table(hfile, family_names, method=None):
         return delete_column_families(hfile, family_names)
     else:
         return add_column_families(hfile, family_names)
+    
+
+
+# Drop
+def drop_table(hfile):
+    if hfile.metadata["enabled"]:
+        os.remove(base + hfile.metadata["name"] + ".json")
+    else:
+        errores.append("Table is disabled")
+        return False
+    return True
+
+# drop all
+def drop_all_tables(param=None):
+    if param is None:
+        errores.append("A parameter is required")
+        return False
+    
+    # Compilar el patrón regex
+    pattern = re.compile(param)
+    
+    # Lista de archivos en el directorio base
+    files = os.listdir(base)
+    
+    # Filtrar archivos que coincidan con el patrón regex
+    files_to_remove = [f for f in files if pattern.match(f)]
+    
+    if not files_to_remove:
+        errores.append("No files matched the pattern")
+        return False
+    
+    # Intentar eliminar cada archivo coincidente
+    for filename in files_to_remove:
+        filepath = os.path.join(base, filename)
+        try:
+            os.remove(filepath)
+        except Exception as e:
+            errores.append(f"Error removing {filename}: {str(e)}")
+            continue
+
+    return True
 
 
 if __name__ == "__main__":
 
     os.system("cls")
 
-    create_table("my_table", ["family1", "family2"])
-    hfile = load_table("my_table")
-    print(f"Metadata of {hfile.metadata["name"]}: {hfile.metadata}")
-    print(f"Data of {hfile.metadata["name"]}: {hfile.data}")
+    switch = 3
 
-    # probar alter table
-    alter_table(hfile, ["family3", "family4"])
-    print(f"Data of {hfile.metadata["name"]}: {hfile.data}")
-    alter_table(hfile, ["family1", "family4"], "delete")
-    print(f"Data of {hfile.metadata["name"]}: {hfile.data}")
+    if switch == 1:
 
-    print(f"errores: {errores}")
+        create_table("test1", ["cf1", "cf2"])
+        create_table("test2", ["cf1", "cf2"])
+        create_table("test3", ["cf1", "cf2"])
+
+        create_table("log_data1", ["cf1", "cf2"])
+        create_table("datalog", ["cf1", "cf2"])
+        create_table("log_data_test", ["cf1", "cf2"])
+
+        tables = list_tables()
+        print(f"Tables: {tables}")
+
+    elif switch == 2:
+        drop_all_tables('.*data.*')  # Eliminar todos los archivos que contienen la palabra "data"
+        print(f"tablas: {list_tables()}")
+    elif switch == 3:
+        drop_all_tables('test.*') # Eliminar todos los archivos que comienzan con "test"
+        print(f"tablas: {list_tables()}")
+
+
+    
 
 
 
