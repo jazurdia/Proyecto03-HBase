@@ -104,13 +104,19 @@ def alter_table(hfile, family_names, method=None):
 
 
 # Drop
-def drop_table(hfile):
-    if hfile.metadata["enabled"]:
-        os.remove(base + hfile.metadata["name"] + ".json")
-    else:
-        errores.append("Table is disabled")
+def drop_table(name: str):
+    table = load_table(name)
+    if table.metadata == None or table.data == None:
+        errores.append("Table does not exist")
         return False
-    return True
+    else:
+        try:
+            os.remove(f"{base}{name}.json")
+            return True
+        except Exception as e:
+            errores.append(f"Error removing {name}: {str(e)}")
+            return False
+    
 
 # drop all
 def drop_all_tables(param=None):
@@ -175,10 +181,12 @@ if __name__ == "__main__":
         print(f"tablas: {list_tables()}")
 
 
-    inte = 3
+    inte = 4
 
     if inte == 1:
         create_table("test1", ["cf1", "cf2"])
+        tables = list_tables()
+        print(f"Tables: {tables}")
 
     elif inte == 2:
         table = load_table("test1")
@@ -187,6 +195,10 @@ if __name__ == "__main__":
     elif inte == 3:
         describe_ob = describe_table(load_table("test1"))
         print(f"describe: {describe_ob}")
+
+    elif inte == 4:
+        drop_table("test1")
+        print(f"tablas: {list_tables()}")
 
 
 
