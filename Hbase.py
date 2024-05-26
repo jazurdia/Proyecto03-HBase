@@ -162,6 +162,9 @@ def clean_table(hfile):
 
     rows_to_delete = []
 
+    if hfile.data["index_column"] == []:
+        return hfile
+
     # Verificar filas con todas las celdas en null o ""
     for row_index, index_row in enumerate(hfile.data["index_column"]):
         all_empty = True
@@ -413,6 +416,28 @@ def count(table_name, **kwargs):
         limited_count = min(total_rows, limit)
         return limited_count
 
+def truncate(table_name):
+    hfile = load_table(table_name)
+
+    if hfile.data is None or hfile.metadata is None:
+        errores.append("Table does not exist")
+        return False
+
+    if not is_enable(hfile):
+        errores.append("Table is disabled")
+        return False
+    
+    # eliminamos todas las rows
+    hfile.data["index_column"] = []
+
+    # elimnamos todos los datos de las columnas, dejando las columnas
+    for family in hfile.data["families"]:
+        for col in hfile.data["families"][family]:
+            hfile.data["families"][family][col] = []
+
+    save_table(hfile)
+    return True
+
 
 def pretty_print_json(json_data):
     print(json.dumps(json_data, indent=4))
@@ -431,6 +456,12 @@ if __name__ == "__main__":
     print("**********\n")
     res = count("table1", LIMIT=3)
     print(f"count table1, LIMIT=3: {res}")
+
+    print("**********\n")
+    print("truncate tabla_tonota")
+    truncate("tabla_tonota")
+
+    pretty_print_json(load_table("tabla_tonota").data)
 
 
     
