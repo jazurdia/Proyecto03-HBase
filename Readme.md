@@ -16,6 +16,22 @@ Este proyecto simula la funcionalidad de HBase, un almacén de datos distribuido
 2. Clone este repositorio.
 3. Cree un directorio llamado `hfiles` en la raíz del proyecto.
 
+### Librerías Necesarias
+Asegúrese de tener instaladas las siguientes librerías antes de ejecutar el proyecto:
+```
+import json
+import os
+import re
+import time
+from tkinter import *
+import customtkinter as ctk
+```
+Puede instalarlas utilizando pip:
+
+```
+pip install <libreria>
+```
+
 ## Uso
 
 ### Simulación de HFiles
