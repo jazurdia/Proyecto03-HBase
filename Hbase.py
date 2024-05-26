@@ -199,12 +199,84 @@ def put(table_name, row_key, family, column, value):
     save_table(hfile)
     return True
 
+def get(table_name, row_key, columns=None):
+    hfile = load_table(table_name)
+    
+    if hfile.data is None or hfile.metadata is None:
+        errores.append("Table does not exist")
+        return None
+
+    if not is_enable(hfile):
+        errores.append("Table is disabled")
+        return None
+
+    # Verificar si el índice de la fila existe
+    row_index = next((index for index, index_row in enumerate(hfile.data["index_column"]) if index_row["value"] == row_key), None)
+    
+    if row_index is None:
+        errores.append("Row does not exist")
+        return None
+
+    # Si no se especifican columnas, devolver todas las familias y columnas para la fila
+    if columns is None:
+        result = {}
+        for family in hfile.data["families"]:
+            result[family] = {}
+            for column in hfile.data["families"][family]:
+                result[family][column] = hfile.data["families"][family][column][row_index]
+        return result
+
+    # Si se especifica una familia o columna
+    if isinstance(columns, str):
+        if ':' in columns:
+            family, column = columns.split(':')
+            if family in hfile.data["families"] and column in hfile.data["families"][family]:
+                return hfile.data["families"][family][column][row_index]
+            else:
+                errores.append("Family or column does not exist")
+                return None
+        else:
+            family = columns
+            if family in hfile.data["families"]:
+                result = {}
+                for column in hfile.data["families"][family]:
+                    result[column] = hfile.data["families"][family][column][row_index]
+                return result
+            else:
+                errores.append("Family does not exist")
+                return None
+
+    # Si se especifica una lista de columnas
+    if isinstance(columns, list):
+        result = {}
+        for item in columns:
+            if ':' in item:
+                family, column = item.split(':')
+                if family in hfile.data["families"] and column in hfile.data["families"][family]:
+                    if family not in result:
+                        result[family] = {}
+                    result[family][column] = hfile.data["families"][family][column][row_index]
+                else:
+                    errores.append(f"Family or column {item} does not exist")
+        return result
+
+    errores.append("Invalid columns parameter")
+    return None
+
+# Ejemplo de uso
 if __name__ == "__main__":
     os.system("cls")
 
-    put("table2", "row2", "cf1", "new_column", "x2 acabo de poner este valor")
-    table = load_table("table2")
-    print(json.dumps({
-        "data": table.data,
-        "metadata": table.metadata
-    }, indent=4))
+    create_table("table2", ["cf1", "cf2"])
+    put("table2", "row1", "cf1", "col1", "value1")
+    put("table2", "row1", "cf1", "col2", "value2")
+    put("table2", "row1", "cf2", "col1", "value3")
+
+    # Casos de prueba
+    print(get("table2", "row1"))
+    print()
+    print(get("table2", "row1", "cf1:col1"))
+    print()
+    print(get("table2", "row1", ["cf1:col1", "cf1:col2"]))
+    print()
+    print(get("table2", "row1", "cf1"))
