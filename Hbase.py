@@ -518,15 +518,15 @@ if __name__ == "__main__":
 
     # Ejemplos de uso
     result1 = scan('my_table', STARTROW='row1')
-    print(f"scan my_table, STARTROW='row1'-> {result1}")
+    print(f"scan my_table, STARTROW='row1'-> {result1}\n\n")
 
     result2 = scan('my_table', COLUMNS=['cf1:column1', 'cf2:column2'])
-    print(f"scan my_table, COLUMNS=['cf1:column1', 'cf2:column2']-> {result2}")
+    print(f"scan my_table, COLUMNS=['cf1:column1', 'cf2:column2']-> {result2}\n\n")
 
     result3 = scan('my_table', FILTER="ValueFilter(=, 'binary:value1')")
-    print(f"scan my_table, FILTER=\"ValueFilter(=, 'binary:value1') -> {result3}")
+    print(f"scan my_table, FILTER=\"ValueFilter(=, 'binary:value1') -> {result3}\n\n")
 
     result4 = scan('my_table', LIMIT=10)
-    print(f"scan my_table, LIMIT=10-> {result4}")
+    print(f"scan my_table, LIMIT=10-> {result4}\n\n")
 
     
