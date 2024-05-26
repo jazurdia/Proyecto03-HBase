@@ -149,62 +149,62 @@ def drop_all_tables(param=None):
     return True
 
 # describe
-
 def describe_table(hfile):
     return hfile.metadata
 
+def put(table_name, row_key, family, column, value):
+    hfile = load_table(table_name)
+    
+    if hfile.data is None or hfile.metadata is None:
+        errores.append("Table does not exist")
+        return False
+
+    if not is_enable(hfile):
+        errores.append("Table is disabled")
+        return False
+
+    current_time = int(time.time())
+
+    # Verificar si el índice de la fila ya existe
+    row_exists = any(index["value"] == row_key for index in hfile.data["index_column"])
+
+    if not row_exists:
+        # Agregar la nueva fila al index_column
+        hfile.data["index_column"].append({"timeStamp": current_time, "value": row_key})
+        row_index = len(hfile.data["index_column"]) - 1
+        
+        # Inicializar todas las columnas para la nueva fila
+        for fam in hfile.data["families"]:
+            for col in hfile.data["families"][fam]:
+                if fam == family and col == column:
+                    hfile.data["families"][fam][col].append({"timeStamp": current_time, "value": value})
+                else:
+                    hfile.data["families"][fam][col].append({"timeStamp": None, "value": ""})
+    else:
+        # Obtener el índice de la fila existente
+        row_index = next(index for index, index_row in enumerate(hfile.data["index_column"]) if index_row["value"] == row_key)
+        
+        # Actualizar el valor de la columna existente
+        for col in hfile.data["families"][family]:
+            if col == column:
+                hfile.data["families"][family][col][row_index] = {"timeStamp": current_time, "value": value}
+            elif hfile.data["families"][family][col][row_index]["value"] == "":
+                hfile.data["families"][family][col][row_index] = {"timeStamp": None, "value": ""}
+
+    # Si la columna no existe, agregarla
+    if column not in hfile.data["families"][family]:
+        hfile.data["families"][family][column] = [{"timeStamp": None, "value": ""} for _ in hfile.data["index_column"]]
+        hfile.data["families"][family][column][row_index] = {"timeStamp": current_time, "value": value}
+
+    save_table(hfile)
+    return True
 
 if __name__ == "__main__":
-
     os.system("cls")
 
-    switch = 0
-
-    if switch == 1:
-
-        create_table("test1", ["cf1", "cf2"])
-        create_table("test2", ["cf1", "cf2"])
-        create_table("test3", ["cf1", "cf2"])
-
-        create_table("log_data1", ["cf1", "cf2"])
-        create_table("datalog", ["cf1", "cf2"])
-        create_table("log_data_test", ["cf1", "cf2"])
-
-        tables = list_tables()
-        print(f"Tables: {tables}")
-
-    elif switch == 2:
-        drop_all_tables('.*data.*')  # Eliminar todos los archivos que contienen la palabra "data"
-        print(f"tablas: {list_tables()}")
-    elif switch == 3:
-        drop_all_tables('test.*') # Eliminar todos los archivos que comienzan con "test"
-        print(f"tablas: {list_tables()}")
-
-
-    inte = 4
-
-    if inte == 1:
-        create_table("test1", ["cf1", "cf2"])
-        tables = list_tables()
-        print(f"Tables: {tables}")
-
-    elif inte == 2:
-        table = load_table("test1")
-        print(f"table: {table.metadata["name"]}\nMetadata: {table.metadata}\nData: {table.data}")
-
-    elif inte == 3:
-        describe_ob = describe_table(load_table("test1"))
-        print(f"describe: {describe_ob}")
-
-    elif inte == 4:
-        drop_table("test1")
-        print(f"tablas: {list_tables()}")
-
-
-
-    
-
-
-
-    
-
+    put("table2", "row2", "cf1", "new_column", "x2 acabo de poner este valor")
+    table = load_table("table2")
+    print(json.dumps({
+        "data": table.data,
+        "metadata": table.metadata
+    }, indent=4))
