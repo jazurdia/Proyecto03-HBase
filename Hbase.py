@@ -38,6 +38,7 @@ def load_table(table_name):
     return Hfile(table_name)
 
 def save_table(hfile):
+    clean_table(hfile)
     hfile.save_hfile()
     
 def list_tables():
@@ -151,6 +152,39 @@ def drop_all_tables(param=None):
 # describe
 def describe_table(hfile):
     return hfile.metadata
+
+# *************************************** EMPIEZA DML **************************************** #
+
+def clean_table(hfile):
+    if hfile.data is None or hfile.metadata is None:
+        errores.append("Table does not exist")
+        return hfile
+
+    rows_to_delete = []
+
+    # Verificar filas con todas las celdas en null o ""
+    for row_index, index_row in enumerate(hfile.data["index_column"]):
+        all_empty = True
+        for family in hfile.data["families"]:
+            for col in hfile.data["families"][family]:
+                cell = hfile.data["families"][family][col][row_index]
+                if cell["value"] is not None and cell["value"] != "":
+                    all_empty = False
+                    break
+            if not all_empty:
+                break
+        
+        if all_empty:
+            rows_to_delete.append(row_index)
+
+    # Eliminar filas que están completamente vacías
+    for row_index in sorted(rows_to_delete, reverse=True):
+        del hfile.data["index_column"][row_index]
+        for family in hfile.data["families"]:
+            for col in hfile.data["families"][family]:
+                del hfile.data["families"][family][col][row_index]
+
+    return hfile
 
 def put(table_name, row_key, family, column, value):
     hfile = load_table(table_name)
@@ -308,27 +342,98 @@ def delete(table_name, row_key, column=None):
     save_table(hfile)
     return True
 
+def deleteall(table_name, row_prefix):
+    hfile = load_table(table_name)
+
+    if hfile.data is None or hfile.metadata is None:
+        errores.append("Table does not exist")
+        return False
+
+    if not is_enable(hfile):
+        errores.append("Table is disabled")
+        return False
+    
+    # compilamos el patrón refex para el prefijo de la fila
+    pattern = re.compile(row_prefix)
+
+    # filtrar las filas que coincidan con el prefijo
+    matching_indexes = [index for index, index_row in enumerate(hfile.data["index_column"]) if pattern.match(index_row["value"])]
+
+    if not matching_indexes:
+        errores.append("No rows matched the prefix")
+        return False
+    
+    # llegando aqui, deberiamos conocer todas las filas que coinciden con el patrón.
+    for row_index in matching_indexes:
+        for family in hfile.data["families"]:
+            for col in hfile.data["families"][family]:
+                hfile.data["families"][family][col][row_index] = {"timeStamp": None, "value": ""}
+
+    save_table(hfile)
+    return True
+
+
+# Count
+"""
+count 'my_table'
+count 'my_table', INTERVAL => 100
+count 'my_table', LIMIT => 500
+"""
+
+def count(table_name, **kwargs):
+    hfile = load_table(table_name)
+
+    if hfile.data is None or hfile.metadata is None:
+        errores.append("Table does not exist")
+        return 0
+
+    total_rows = len(hfile.data["index_column"])
+    interval = kwargs.get('INTERVAL', None)
+    limit = kwargs.get('LIMIT', None)
+
+    if interval is None and limit is None:
+        return total_rows
+
+    results = {}
+    start_time = time.time()
+
+    if interval is not None:
+        intervals = []
+        for i in range(0, total_rows, interval):
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            intervals.append((elapsed_time, min(interval, total_rows - i)))
+            time.sleep(0.01)  # Simulamos algún trabajo para poder medir el tiempo
+
+        results['intervals'] = intervals
+        results['total_count'] = total_rows
+        return results
+
+    if limit is not None:
+        limited_count = min(total_rows, limit)
+        return limited_count
+
+
 def pretty_print_json(json_data):
     print(json.dumps(json_data, indent=4))
 
-# Ejemplo de uso
 if __name__ == "__main__":
     os.system("cls")
 
-    create_table("tabla_tonota", ["familia1", "cf2"])
-    put("tabla_tonota", "row_prueba", "familia1", "col1", "Valor de prueba")
-    put("tabla_tonota", "row_prueba", "familia1", "col2", "Valor de prueba 2")
-    tabla = load_table("tabla_tonota")
-    pretty_print_json(tabla.data)
+    print("**********\n")
+    res = count("table1")
+    print(f"count table1: {res}")
 
-    print("eliminando un valor")
-    delete("tabla_tonota", "row_prueba", "familia1:col1")
-    pretty_print_json(load_table("tabla_tonota").data)
+    print("**********\n")
+    res = count("table1", INTERVAL=2)
+    print(f"count table1, INTERVAL=2: {res}")
 
-    print("eliminando toda la column family")
-    delete("tabla_tonota", "row_prueba", "familia1")
-    pretty_print_json(load_table("tabla_tonota").data)
+    print("**********\n")
+    res = count("table1", LIMIT=3)
+    print(f"count table1, LIMIT=3: {res}")
 
-    print("eliminando toda la fila")
-    delete("tabla_tonota", "row_prueba")
-    pretty_print_json(load_table("tabla_tonota").data)
+
+    
+
+    
+    
