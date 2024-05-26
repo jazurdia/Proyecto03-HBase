@@ -462,9 +462,4 @@ if __name__ == "__main__":
     truncate("tabla_tonota")
 
     pretty_print_json(load_table("tabla_tonota").data)
-
-
-    
-
-    
     
