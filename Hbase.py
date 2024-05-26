@@ -262,21 +262,73 @@ def get(table_name, row_key, columns=None):
 
     errores.append("Invalid columns parameter")
     return None
+# hbase(main):001:0> delete 'my_table', 'row1', 'cf1:column1'
+# hbase(main):003:0> delete 'my_table', 'row1', 'cf1'
+
+def delete(table_name, row_key, column=None):
+    hfile = load_table(table_name)
+
+    if hfile.data is None or hfile.metadata is None:
+        errores.append("Table does not exist")
+        return False
+    
+    if not is_enable(hfile):
+        errores.append("Table is disabled")
+        return False
+    
+    # Verificar si el índice de la fila existe
+    row_index = next((index for index, index_row in enumerate(hfile.data["index_column"]) if index_row["value"] == row_key), None)
+
+    if row_index is None:
+        errores.append("Row does not exist")
+        return False
+    
+    if column is None:
+        # Eliminar toda la fila (poner en null, "")
+        for family in hfile.data["families"]:
+            for col in hfile.data["families"][family]:
+                hfile.data["families"][family][col][row_index] = {"timeStamp": None, "value": ""}
+    else:
+        if ':' in column:
+            family, col = column.split(':')
+            if family in hfile.data["families"] and col in hfile.data["families"][family]:
+                hfile.data["families"][family][col][row_index] = {"timeStamp": None, "value": ""}
+            else:
+                errores.append("Family or column does not exist")
+                return False
+        else:
+            family = column
+            if family in hfile.data["families"]:
+                for col in hfile.data["families"][family]:
+                    hfile.data["families"][family][col][row_index] = {"timeStamp": None, "value": ""}
+            else:
+                errores.append("Family does not exist")
+                return False
+
+    save_table(hfile)
+    return True
+
+def pretty_print_json(json_data):
+    print(json.dumps(json_data, indent=4))
 
 # Ejemplo de uso
 if __name__ == "__main__":
     os.system("cls")
 
-    create_table("table2", ["cf1", "cf2"])
-    put("table2", "row1", "cf1", "col1", "value1")
-    put("table2", "row1", "cf1", "col2", "value2")
-    put("table2", "row1", "cf2", "col1", "value3")
+    create_table("tabla_tonota", ["familia1", "cf2"])
+    put("tabla_tonota", "row_prueba", "familia1", "col1", "Valor de prueba")
+    put("tabla_tonota", "row_prueba", "familia1", "col2", "Valor de prueba 2")
+    tabla = load_table("tabla_tonota")
+    pretty_print_json(tabla.data)
 
-    # Casos de prueba
-    print(get("table2", "row1"))
-    print()
-    print(get("table2", "row1", "cf1:col1"))
-    print()
-    print(get("table2", "row1", ["cf1:col1", "cf1:col2"]))
-    print()
-    print(get("table2", "row1", "cf1"))
+    print("eliminando un valor")
+    delete("tabla_tonota", "row_prueba", "familia1:col1")
+    pretty_print_json(load_table("tabla_tonota").data)
+
+    print("eliminando toda la column family")
+    delete("tabla_tonota", "row_prueba", "familia1")
+    pretty_print_json(load_table("tabla_tonota").data)
+
+    print("eliminando toda la fila")
+    delete("tabla_tonota", "row_prueba")
+    pretty_print_json(load_table("tabla_tonota").data)
