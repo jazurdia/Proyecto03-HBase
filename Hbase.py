@@ -438,6 +438,77 @@ def truncate(table_name):
     save_table(hfile)
     return True
 
+"""
+Sintaxis del comando: scan 'nombre_de_la_tabla', { OPTIONS }
+
+scan 'my_table', {STARTROW => 'row1'}
+scan 'my_table', {COLUMNS => ['cf1:column1', 'cf2:column2']}
+scan 'my_table', {FILTER => "ValueFilter(=, 'binary:value1')"}
+scan 'my_table', {LIMIT => 10}
+
+Elementos completos
+hbase(main):001:0> scan 'my_table'
+hbase(main):002:0> scan 'my_table', {STARTROW => 'row1', STOPROW => 'row10'}
+hbase(main):003:0> scan 'my_table', {COLUMNS => ['cf1:column1', 'cf2:column2']}
+hbase(main):004:0> scan 'my_table', {FILTER => "ValueFilter(=, 'binary:value1')"}
+hbase(main):005:0> scan 'my_table', {LIMIT => 10}
+"""
+def scan(table_name, **options):
+    hfile = load_table(table_name)
+
+    if hfile.data is None or hfile.metadata is None:
+        errores.append("Table does not exist")
+        return None
+
+    if not is_enable(hfile):
+        errores.append("Table is disabled")
+        return None
+
+    start_row = options.get('STARTROW', None)
+    stop_row = options.get('STOPROW', None)
+    columns = options.get('COLUMNS', None)
+    filter_expression = options.get('FILTER', None)
+    limit = options.get('LIMIT', None)
+
+    result = []
+    row_indices = range(len(hfile.data["index_column"]))
+    if start_row is not None:
+        start_index = next((i for i, row in enumerate(hfile.data["index_column"]) if row["value"] == start_row), None)
+        row_indices = range(start_index, len(hfile.data["index_column"])) if start_index is not None else row_indices
+
+    if stop_row is not None:
+        stop_index = next((i for i, row in enumerate(hfile.data["index_column"]) if row["value"] == stop_row), None)
+        row_indices = range(min(row_indices.start, row_indices.stop, stop_index)) if stop_index is not None else row_indices
+
+    for row_index in row_indices:
+        row_data = hfile.data["index_column"][row_index]
+        row_result = {"row": row_data["value"], "columns": {}}
+
+        for family in hfile.data["families"]:
+            for column in hfile.data["families"][family]:
+                if columns is None or f"{family}:{column}" in columns:
+                    cell = hfile.data["families"][family][column][row_index]
+                    if filter_expression is None or eval_filter(cell, filter_expression):
+                        if family not in row_result["columns"]:
+                            row_result["columns"][family] = {}
+                        row_result["columns"][family][column] = cell
+
+        result.append(row_result)
+        if limit is not None and len(result) >= limit:
+            break
+
+    return result
+
+def eval_filter(cell, filter_expression):
+    if "ValueFilter" in filter_expression:
+        match = re.match(r"ValueFilter\(\s*=\s*,\s*'binary:(.+)'\s*\)", filter_expression)
+        if match:
+            value = match.group(1)
+            return cell["value"] == value
+    return True
+
+
+
 
 def pretty_print_json(json_data):
     print(json.dumps(json_data, indent=4))
@@ -445,21 +516,17 @@ def pretty_print_json(json_data):
 if __name__ == "__main__":
     os.system("cls")
 
-    print("**********\n")
-    res = count("table1")
-    print(f"count table1: {res}")
+    # Ejemplos de uso
+    result1 = scan('my_table', STARTROW='row1')
+    print(f"scan my_table, STARTROW='row1'-> {result1}")
 
-    print("**********\n")
-    res = count("table1", INTERVAL=2)
-    print(f"count table1, INTERVAL=2: {res}")
+    result2 = scan('my_table', COLUMNS=['cf1:column1', 'cf2:column2'])
+    print(f"scan my_table, COLUMNS=['cf1:column1', 'cf2:column2']-> {result2}")
 
-    print("**********\n")
-    res = count("table1", LIMIT=3)
-    print(f"count table1, LIMIT=3: {res}")
+    result3 = scan('my_table', FILTER="ValueFilter(=, 'binary:value1')")
+    print(f"scan my_table, FILTER=\"ValueFilter(=, 'binary:value1') -> {result3}")
 
-    print("**********\n")
-    print("truncate tabla_tonota")
-    truncate("tabla_tonota")
+    result4 = scan('my_table', LIMIT=10)
+    print(f"scan my_table, LIMIT=10-> {result4}")
 
-    pretty_print_json(load_table("tabla_tonota").data)
     
