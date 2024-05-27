@@ -96,6 +96,8 @@ def delete_column_families(hfile, family_names):
 # o 
 # alter 'my_table', {NAME => 'old_cf', METHOD => 'delete'}
 
+
+## CAMBIALO AZURDIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 def alter_table(hfile, family_names, method=None):
     if method == "delete":
         return delete_column_families(hfile, family_names)
