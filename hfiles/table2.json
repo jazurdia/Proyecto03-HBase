@@ -1,0 +1,75 @@
+{
+    "data": {
+        "index_column": [
+            {
+                "timeStamp": 1716690270,
+                "value": "row1"
+            },
+            {
+                "timeStamp": 1716690352,
+                "value": "row2"
+            }
+        ],
+        "families": {
+            "cf1": {
+                "col1": [
+                    {
+                        "timeStamp": 1716690842,
+                        "value": "value1"
+                    },
+                    {
+                        "timeStamp": null,
+                        "value": ""
+                    }
+                ],
+                "new_column": [
+                    {
+                        "timeStamp": null,
+                        "value": ""
+                    },
+                    {
+                        "timeStamp": 1716690381,
+                        "value": "x2 acabo de poner este valor"
+                    }
+                ],
+                "col2": [
+                    {
+                        "timeStamp": 1716690842,
+                        "value": "value2"
+                    },
+                    {
+                        "timeStamp": null,
+                        "value": ""
+                    }
+                ]
+            },
+            "cf2": {
+                "col_new": [
+                    {
+                        "timeStamp": 1716690338,
+                        "value": "acabo de poner este valor"
+                    },
+                    {
+                        "timeStamp": 1716690352,
+                        "value": "acabo de poner este valor"
+                    }
+                ],
+                "col1": [
+                    {
+                        "timeStamp": 1716690842,
+                        "value": "value3"
+                    },
+                    {
+                        "timeStamp": null,
+                        "value": ""
+                    }
+                ]
+            }
+        }
+    },
+    "metadata": {
+        "enabled": true,
+        "name": "table2",
+        "creation_timeStamp": 1716690270
+    }
+}

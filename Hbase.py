@@ -51,11 +51,13 @@ def list_tables():
     
     return tables  # return the list of tables
 
-def disable_table(hfile):
+def disable_table(table_name: str):
+    hfile = load_table(table_name)
     hfile.metadata["enabled"] = False
     save_table(hfile)
 
-def enable_table(hfile):
+def enable_table(table_name: str):
+    hfile = load_table(table_name)
     hfile.metadata["enabled"] = True
     save_table(hfile)
 
@@ -98,7 +100,8 @@ def delete_column_families(hfile, family_names):
 
 
 ## CAMBIALO AZURDIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-def alter_table(hfile, family_names, method=None):
+def alter_table(table_name, family_names, method=None):
+    hfile = load_table(table_name)
     if method == "delete":
         return delete_column_families(hfile, family_names)
     else:

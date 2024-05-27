@@ -1,0 +1,55 @@
+{
+    "data": {
+        "index_column": [
+            {
+                "timeStamp": 1716694425,
+                "value": "row2"
+            },
+            {
+                "timeStamp": 1716694774,
+                "value": "row1"
+            }
+        ],
+        "families": {
+            "cf1": {
+                "column1": [
+                    {
+                        "timeStamp": 1716694786,
+                        "value": "value1"
+                    },
+                    {
+                        "timeStamp": null,
+                        "value": ""
+                    }
+                ],
+                "column2": [
+                    {
+                        "timeStamp": 1716694786,
+                        "value": "value2"
+                    },
+                    {
+                        "timeStamp": 1716694786,
+                        "value": "value2"
+                    }
+                ]
+            },
+            "cf2": {
+                "column3": [
+                    {
+                        "timeStamp": 1716694786,
+                        "value": "value3"
+                    },
+                    {
+                        "timeStamp": 1716694786,
+                        "value": "value3"
+                    }
+                ]
+            }
+        }
+    },
+    "metadata": {
+        "enabled": true,
+        "name": "my_table",
+        "creation_timeStamp": 1716694425
+    }
+}

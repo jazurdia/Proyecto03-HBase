@@ -1,0 +1,20 @@
+{
+    "data": {
+        "index_column": [],
+        "families": {
+            "familia1": {
+                "col1": [],
+                "col2": []
+            },
+            "cf2": {
+                "col1": [],
+                "col_juan": []
+            }
+        }
+    },
+    "metadata": {
+        "enabled": true,
+        "name": "tabla_tonota",
+        "creation_timeStamp": 1716692431
+    }
+}
