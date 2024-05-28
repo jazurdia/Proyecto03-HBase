@@ -2,6 +2,7 @@ import json
 import os
 import re
 import time
+import random
 
 from Hfile import Hfile
 
@@ -425,7 +426,7 @@ def count(table_name, **kwargs):
             end_time = time.time()
             elapsed_time = end_time - start_time
             intervals.append((elapsed_time, min(interval, total_rows - i)))
-            time.sleep(0.04)  # Simulamos algún trabajo para poder medir el tiempo
+            time.sleep(random.uniform(0.1, 0.8))  # Simulamos algún trabajo para poder medir el tiempo
 
         results['intervals'] = intervals
         results['total_count'] = total_rows

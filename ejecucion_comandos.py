@@ -1,5 +1,6 @@
 import Hbase as hbase
 import time
+import random
 
 def limpiar_comando(comando):
     comando = comando.replace("create", "")
@@ -16,6 +17,7 @@ def limpiar_comando(comando):
     comando = comando.replace("deleteall", "")
     comando = comando.replace("delete", "")
     comando = comando.replace("count", "")
+    comando = comando.replace("truncate", "")
     comando = comando.replace("'", "")
     comando = comando.replace("(", "")
     comando = comando.replace(")", "")
@@ -59,6 +61,8 @@ def identificar_comando(comando):
         return ejecutar_deleteall(comando)
     elif comando.startswith("count"):
         return ejecutar_count(comando)
+    elif comando.startswith("truncate"):
+        return ejecutar_truncate(comando)
     else:
         return False, "ERROR: Command not found"
     
@@ -414,16 +418,14 @@ def ejecutar_count(comando):
                 return False, "ERROR: " + errores[0]
 
            
-
+            tiempo_final = time.time()
             if resultado_count_interval is not None:
                 # Formatear el resultado de intervalos para impresión
                 interval_logs = resultado_count_interval.get('intervals', [])
                 total_count = resultado_count_interval.get('total_count', 0)
                 log_str = ""
                 for elapsed_time, count in interval_logs:
-                    time.sleep(0.3)
                     log_str += f"Current count: {count}, time spent: {round(elapsed_time, 2)} seconds\n"
-                tiempo_final = time.time()
                 log_str += f"{total_count} row(s) in {round(tiempo_final - tiempo_inicial, 2)} seconds\n⇒ {total_count}"
                 return True, log_str
             else:
@@ -432,5 +434,23 @@ def ejecutar_count(comando):
         print(e)
         return False, "ERROR: Unexpected error counting data"
     
+def ejecutar_truncate(comando):
+    try:
+        tiempo_inicial = time.time()
+        comando = limpiar_comando(comando)
+        tabla = comando
+        if len(tabla) == 0:
+            return False, "ERROR: SyntaxError: No table specified"
+        hbase.truncate(tabla)
+        errores = hbase.get_errores()
+        if len(errores) > 0:
+            return False, "ERROR: " + errores[0]
+        #un tiempo de espera sleep random entre 0.1 y 0.8
+        time.sleep(random.uniform(0.1, 0.8))
+        tiempo_final = time.time()
+        return True, "0 row(s) in " + str(round(tiempo_final - tiempo_inicial, 2)) + " seconds"
+    except Exception as e:
+        print(e)
+        return False, "ERROR: Unexpected error truncating table"
 if __name__ == "__main__":
     print("Hola mundo")
