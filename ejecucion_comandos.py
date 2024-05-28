@@ -3,8 +3,8 @@ import time
 
 def limpiar_comando(comando):
     comando = comando.replace("create", "")
-    comando = comando.replace("enable", "")
     comando = comando.replace("is_enable", "")
+    comando = comando.replace("enable", "")
     comando = comando.replace("disable", "")
     comando = comando.replace("table", "")
     comando = comando.replace("describe", "")
@@ -124,12 +124,13 @@ def ejecutar_is_enable(comando):
         tabla = comando
         if len(tabla) == 0:
             return False, "ERROR: SyntaxError: No table specified"
-        enabled = hbase.is_enable(tabla)
+        hfile = hbase.load_table(tabla)
+        enabled = hbase.is_enable(hfile)
         errores = hbase.get_errores()
         if len(errores) > 0:
             return False, "ERROR: " + errores[0]
         tiempo_final = time.time()
-        return True, str(enabled) + " row(s) in " + str(round(tiempo_final - tiempo_inicial, 2)) + " seconds"
+        return True, str(enabled) + "\n" + "0 row(s) in " + str(round(tiempo_final - tiempo_inicial, 2)) + " seconds"
     except Exception as e:
         print(e)
         return False, "ERROR: Unexpected error checking if table is enabled"
