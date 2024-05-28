@@ -6,7 +6,7 @@
         }
     },
     "metadata": {
-        "enabled": true,
+        "enabled": false,
         "name": "mi_tabla",
         "creation_timeStamp": 1716859163
     }
