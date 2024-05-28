@@ -142,7 +142,7 @@ def drop_table(name: str):
 def drop_all_tables(param=None):
     if param is None:
         errores.append("A parameter is required")
-        return False
+        return False, []
     
     # Compilar el patrón regex
     pattern = re.compile(param)
@@ -155,7 +155,7 @@ def drop_all_tables(param=None):
     
     if not files_to_remove:
         errores.append("No files matched the pattern")
-        return False
+        return False, []
     
     # Intentar eliminar cada archivo coincidente
     for filename in files_to_remove:
@@ -166,7 +166,7 @@ def drop_all_tables(param=None):
             errores.append(f"Error removing {filename}: {str(e)}")
             continue
 
-    return True
+    return True, files_to_remove
 
 # describe
 def describe_table(hfile):

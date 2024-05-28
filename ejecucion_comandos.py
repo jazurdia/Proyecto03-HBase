@@ -6,6 +6,8 @@ def limpiar_comando(comando):
     comando = comando.replace("is_enable", "")
     comando = comando.replace("enable", "")
     comando = comando.replace("disable", "")
+    comando = comando.replace("drop_all", "")
+    comando = comando.replace("drop", "")
     #comando = comando.replace("table", "")
     comando = comando.replace("describe", "")
     comando = comando.replace("alter", "")
@@ -37,7 +39,11 @@ def identificar_comando(comando):
     elif comando.startswith("describe"):
         return ejecutar_describe(comando)
     elif comando.startswith("alter"):
-        return ejecutar_alter(comando)        
+        return ejecutar_alter(comando) 
+    elif comando.startswith("drop_all"):
+        return ejecutar_drop_all(comando) 
+    elif comando.startswith("drop"):
+        return ejecutar_drop(comando)      
     else:
         return False, "ERROR: Command not found"
     
@@ -194,5 +200,39 @@ def ejecutar_alter(comando):
         print(e)
         return False, "ERROR: Unexpected error altering table"
     
+def ejecutar_drop(comando):
+    try:
+        tiempo_inicial = time.time()
+        comando = limpiar_comando(comando)
+        tabla = comando
+        if len(tabla) == 0:
+            return False, "ERROR: SyntaxError: No table specified"
+        hbase.drop_table(tabla)
+        errores = hbase.get_errores()
+        if len(errores) > 0:
+            return False, "ERROR: " + errores[0]
+        tiempo_final = time.time()
+        return True, "0 row(s) in " + str(round(tiempo_final - tiempo_inicial, 2)) + " seconds"
+    except Exception as e:
+        print(e)
+        return False, "ERROR: Unexpected error dropping table"
+    
+def ejecutar_drop_all(comando):
+    try:
+        tiempo_inicial = time.time()
+        comando = limpiar_comando(comando)
+        _, files = hbase.drop_all_tables(comando)
+        for i in range(len(files)):
+            #replace .json
+            files[i] = files[i].replace(".json", "")            
+        errores = hbase.get_errores()
+        cont = len(files)
+        if len(errores) > 0:
+            return False, "ERROR: " + errores[0]
+        tiempo_final = time.time()
+        return True, "\n".join(files) + "\n" + "droping the above " + str(cont) + " tables\n0 row(s) in " + str(round(tiempo_final - tiempo_inicial, 2)) + " seconds"
+    except Exception as e:
+        print(e)
+        return False, "ERROR: Unexpected error dropping all tables"
 if __name__ == "__main__":
     print("Hola mundo")

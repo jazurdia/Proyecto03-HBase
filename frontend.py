@@ -2,6 +2,7 @@ from tkinter import *
 import ejecucion_comandos as ec
 import customtkinter as ctk
 
+
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -73,6 +74,7 @@ class App(ctk.CTk):
         
     def borrar_comando(self):
         self.entrada_comando.delete('1.0', END)
+
 
 if __name__ == '__main__':
     app = App()
