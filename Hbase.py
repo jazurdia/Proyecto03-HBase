@@ -484,11 +484,11 @@ def scan(table_name, **options):
         errores.append("Table is disabled")
         return None
 
-    start_row = options.get('STARTROW', None)
-    stop_row = options.get('STOPROW', None)
-    columns = options.get('COLUMNS', None)
-    filter_expression = options.get('FILTER', None)
-    limit = options.get('LIMIT', None)
+    start_row = options.get('startrow', None)
+    stop_row = options.get('stoprow', None)
+    columns = options.get('columns', None)
+    filter_expression = options.get('filter', None)
+    limit = options.get('limit', None)
 
     result = []
     row_indices = range(len(hfile.data["index_column"]))
@@ -520,8 +520,9 @@ def scan(table_name, **options):
     return result
 
 def eval_filter(cell, filter_expression):
-    if "ValueFilter" in filter_expression:
-        match = re.match(r"ValueFilter\(\s*=\s*,\s*'binary:(.+)'\s*\)", filter_expression)
+    if "ValueFilter" in filter_expression or "valuefilter" in filter_expression:
+        #match = re.match(r"ValueFilter\(\s*=\s*,\s*'binary:(.+)'\s*\)", filter_expression)
+        match = re.match(r"valuefilter\(\s*=\s*,\s*'binary:(.+)'\s*\)", filter_expression) #if not match  else match
         if match:
             value = match.group(1)
             return cell["value"] == value

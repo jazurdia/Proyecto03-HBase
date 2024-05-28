@@ -1,6 +1,7 @@
 import Hbase as hbase
 import time
 import random
+import re
 
 def limpiar_comando(comando):
     comando = comando.replace("create", "")
@@ -18,6 +19,7 @@ def limpiar_comando(comando):
     comando = comando.replace("delete", "")
     comando = comando.replace("count", "")
     comando = comando.replace("truncate", "")
+    comando = comando.replace("scan", "")
     comando = comando.replace("'", "")
     comando = comando.replace("(", "")
     comando = comando.replace(")", "")
@@ -63,6 +65,8 @@ def identificar_comando(comando):
         return ejecutar_count(comando)
     elif comando.startswith("truncate"):
         return ejecutar_truncate(comando)
+    elif comando.startswith("scan"):
+        return ejecutar_scan(comando)
     else:
         return False, "ERROR: Command not found"
     
@@ -452,5 +456,85 @@ def ejecutar_truncate(comando):
     except Exception as e:
         print(e)
         return False, "ERROR: Unexpected error truncating table"
+    
+    """
+Sintaxis del comando: scan 'nombre_de_la_tabla', { OPTIONS }
+
+scan 'my_table', {STARTROW => 'row1'}
+scan 'my_table', {COLUMNS => ['cf1:column1', 'cf2:column2']}
+scan 'my_table', {FILTER => "ValueFilter(=, 'binary:value1')"}
+scan 'my_table', {LIMIT => 10}
+
+Elementos completos
+hbase(main):001:0> scan 'my_table'
+hbase(main):002:0> scan 'my_table', {STARTROW => 'row1', STOPROW => 'row10'}
+hbase(main):003:0> scan 'my_table', {COLUMNS => ['cf1:column1', 'cf2:column2']}
+hbase(main):004:0> scan 'my_table', {FILTER => "ValueFilter(=, 'binary:value1')"}
+hbase(main):005:0> scan 'my_table', {LIMIT => 10}
+"""
+def ejecutar_scan(comando):
+    try:
+        tiempo_inicial = time.time()
+        match = re.findall(r'\"(.*?)\"', comando)
+        opciones = None
+        if match:
+            opciones = match
+        comando = limpiar_comando(comando)
+        tabla = comando.split(",")[0].strip()
+        if len(tabla) == 0:
+            return False, "ERROR: SyntaxError: No table specified"
+        else:
+            resultado_scan = None
+            
+
+            # Buscar todo lo que está dentro de comillas dobles
+         
+
+            if len(comando.split(",")) == 1:
+                resultado_scan = hbase.scan(tabla)
+            elif len(comando.split(",{")) == 2 or len(comando.split(",filter")) == 2:
+                if 'startrow' in comando and 'stoprow' in comando:
+                    startrow = comando.split(",")[1].split("=>")[-1].strip()
+                    stoprow = comando.split(",")[2].split("=>")[-1].strip().replace("}", "")
+                    resultado_scan = hbase.scan(tabla, startrow=startrow, stoprow=stoprow)
+                elif 'startrow' in comando:
+                    startrow = comando.split(",")[1].split("=>")[-1].strip().replace("}", "")
+                    resultado_scan = hbase.scan(tabla, startrow=startrow)
+                elif 'columns' in comando:
+                    columns = comando.split("=>")[-1].strip().replace("}", "").replace("[", "").replace("]", "").replace("'", "").split(",")
+                    resultado_scan = hbase.scan(tabla, columns=columns)
+                elif 'filter' in comando:
+                    # Extraer el filtro de las comillas dobles
+                    filtro = opciones[0]
+                    resultado_scan = hbase.scan(tabla, filter=filtro)
+                elif 'limit' in comando:
+                    limit = int(comando.split(",")[1].split("=>")[-1].strip().replace("}", ""))
+                    resultado_scan = hbase.scan(tabla, limit=limit)
+
+            errores = hbase.get_errores()
+            if len(errores) > 0:
+                return False, "ERROR: " + errores[0]
+
+            resultado = "COLUMN + CELL\n"
+            cont = 0
+
+            for item in resultado_scan:
+                row_key = item["row"]
+                for family, columns in item["columns"].items():
+                    for column, cell in columns.items():
+                        column_name = f"{family}:{column}"
+                        timestamp = cell.get("timeStamp", "None")
+                        value = cell.get("value", "None")
+                        resultado += f"{row_key} column={column_name}, timestamp={timestamp}, value={value}\n"
+                cont += 1
+
+            time.sleep(random.uniform(0.1, 0.8))
+            tiempo_final = time.time()
+
+            return True, resultado + "\n" + str(cont) + " row(s) in " + str(round(tiempo_final - tiempo_inicial, 2)) + " seconds"
+    except Exception as e:
+        print(e)
+        return False, "ERROR: Unexpected error scanning data"
+
 if __name__ == "__main__":
     print("Hola mundo")
