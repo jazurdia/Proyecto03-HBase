@@ -1,4 +1,5 @@
 from tkinter import *
+import ejecucion_comandos as ec
 import customtkinter as ctk
 
 class App(ctk.CTk):
@@ -53,6 +54,11 @@ class App(ctk.CTk):
     def ejecutar_comando(self):
         comando = self.entrada_comando.get("1.0", END).strip()
         resultado = f"Ejecutando: {comando}\n"  # Simulación del resultado del comando
+        exec_result, mensaje = ec.identificar_comando(comando)
+        if exec_result:
+            resultado += mensaje + "\n"
+        else:
+            resultado += mensaje + "\n"      
         
         # Habilitar el área de texto, insertar el resultado y volver a deshabilitar
         self.text_area.configure(state='normal')

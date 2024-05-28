@@ -38,7 +38,7 @@ def create_table(table_name, families=None):
         
         hfile.save_hfile()
     else:
-        print("Table already exists") # Cambiar
+        errores.append("Table already exists")
 
 
 
