@@ -9,6 +9,14 @@ base = "hfiles/"
 
 errores = []
 
+
+# Funcion que devuelve los errores. Debe limpiar la lista de errores después de cada uso.
+def get_errores():
+    global errores
+    errores_list = errores
+    errores = []
+    return errores_list
+
 def create_table(table_name, families=None):
     hfile = load_table(table_name)
     if hfile.data == None or hfile.metadata == None:
