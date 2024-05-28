@@ -13,7 +13,9 @@ def limpiar_comando(comando):
     comando = comando.replace("alter", "")
     comando = comando.replace("put", "")
     comando = comando.replace("get", "")
+    comando = comando.replace("deleteall", "")
     comando = comando.replace("delete", "")
+    comando = comando.replace("count", "")
     comando = comando.replace("'", "")
     comando = comando.replace("(", "")
     comando = comando.replace(")", "")
@@ -53,6 +55,10 @@ def identificar_comando(comando):
         return ejecutar_get(comando)
     elif comando.startswith("delete"):
         return ejecutar_delete(comando)
+    elif comando.startswith("deleteall"):
+        return ejecutar_deleteall(comando)
+    elif comando.startswith("count"):
+        return ejecutar_count(comando)
     else:
         return False, "ERROR: Command not found"
     
@@ -353,6 +359,78 @@ def ejecutar_delete(comando):
     except Exception as e:
         print(e)
         return False, "ERROR: Unexpected error deleting data"
+    
+def ejecutar_deleteall(comando):
+    try:
+        tiempo_inicial = time.time()
+        comando = limpiar_comando(comando)
+        tabla = comando.split(",")[0]
+        if len(tabla) == 0:
+            return False, "ERROR: SyntaxError: No table specified"
+        else:
+            regex = comando.split(",")[1]
+            if len(regex) == 0:
+                return False, "ERROR: SyntaxError: No regex specified"
+            else:
+                hbase.deleteall(tabla, regex)
+                errores = hbase.get_errores()
+                if len(errores) > 0:
+                    return False, "ERROR: " + errores[0]
+                tiempo_final = time.time()
+                return True, "0 row(s) in " + str(round(tiempo_final - tiempo_inicial, 2)) + " seconds"
+    except Exception as e:
+        print(e)
+        return False, "ERROR: Unexpected error deleting all data"
+    
+    # Count
+"""
+count 'my_table'
+count 'my_table', INTERVAL => 100
+count 'my_table', LIMIT => 500
+"""
+def ejecutar_count(comando):
+    try:
+        tiempo_inicial = time.time()
+        comando = limpiar_comando(comando)
+        tabla = comando.split(",")[0].strip()
+        if len(tabla) == 0:
+            return False, "ERROR: SyntaxError: No table specified"
+        else:
+            resultado_count = None
+            resultado_count_interval = None
+
+            if len(comando.split(",")) == 1:
+                resultado_count = hbase.count(tabla)
+            elif len(comando.split(",")) == 2:
+                if 'interval' in comando:
+                    interval = int(comando.split(",")[1].split("=>")[-1])
+                    resultado_count_interval = hbase.count(tabla, interval=interval)
+                elif 'limit' in comando:
+                    limit = int(comando.split(",")[1].split("=>")[-1])
+                    resultado_count = hbase.count(tabla, limit=limit)
+
+            errores = hbase.get_errores()
+            if len(errores) > 0:
+                return False, "ERROR: " + errores[0]
+
+           
+
+            if resultado_count_interval is not None:
+                # Formatear el resultado de intervalos para impresión
+                interval_logs = resultado_count_interval.get('intervals', [])
+                total_count = resultado_count_interval.get('total_count', 0)
+                log_str = ""
+                for elapsed_time, count in interval_logs:
+                    time.sleep(0.3)
+                    log_str += f"Current count: {count}, time spent: {round(elapsed_time, 2)} seconds\n"
+                tiempo_final = time.time()
+                log_str += f"{total_count} row(s) in {round(tiempo_final - tiempo_inicial, 2)} seconds\n⇒ {total_count}"
+                return True, log_str
+            else:
+                return True, f"{resultado_count} row(s) in {round(tiempo_final - tiempo_inicial, 2)} seconds\n⇒ {resultado_count}"
+    except Exception as e:
+        print(e)
+        return False, "ERROR: Unexpected error counting data"
     
 if __name__ == "__main__":
     print("Hola mundo")

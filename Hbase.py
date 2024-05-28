@@ -410,8 +410,8 @@ def count(table_name, **kwargs):
         return 0
 
     total_rows = len(hfile.data["index_column"])
-    interval = kwargs.get('INTERVAL', None)
-    limit = kwargs.get('LIMIT', None)
+    interval = kwargs.get('interval', None)
+    limit = kwargs.get('limit', None)
 
     if interval is None and limit is None:
         return total_rows
@@ -425,7 +425,7 @@ def count(table_name, **kwargs):
             end_time = time.time()
             elapsed_time = end_time - start_time
             intervals.append((elapsed_time, min(interval, total_rows - i)))
-            time.sleep(0.01)  # Simulamos algún trabajo para poder medir el tiempo
+            time.sleep(0.04)  # Simulamos algún trabajo para poder medir el tiempo
 
         results['intervals'] = intervals
         results['total_count'] = total_rows
