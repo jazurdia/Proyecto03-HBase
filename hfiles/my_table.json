@@ -18,8 +18,8 @@
                         "value": "value1"
                     },
                     {
-                        "timeStamp": null,
-                        "value": ""
+                        "timeStamp": 1716869931,
+                        "value": "value1"
                     }
                 ],
                 "column2": [
@@ -28,8 +28,8 @@
                         "value": "value2"
                     },
                     {
-                        "timeStamp": 1716694786,
-                        "value": "value2"
+                        "timeStamp": 1716870075,
+                        "value": "value60"
                     }
                 ]
             },

@@ -11,6 +11,7 @@ def limpiar_comando(comando):
     #comando = comando.replace("table", "")
     comando = comando.replace("describe", "")
     comando = comando.replace("alter", "")
+    comando = comando.replace("put", "")
     comando = comando.replace("'", "")
     comando = comando.replace("(", "")
     comando = comando.replace(")", "")
@@ -44,6 +45,8 @@ def identificar_comando(comando):
         return ejecutar_drop_all(comando) 
     elif comando.startswith("drop"):
         return ejecutar_drop(comando)      
+    elif comando.startswith("put"):
+        return ejecutar_put(comando)
     else:
         return False, "ERROR: Command not found"
     
@@ -234,5 +237,39 @@ def ejecutar_drop_all(comando):
     except Exception as e:
         print(e)
         return False, "ERROR: Unexpected error dropping all tables"
+    
+def ejecutar_put(comando):
+    # put 'mi_tabla', 'fila1', 'mi_familia:columna1', 'valor1'
+    try:
+        tiempo_inicial = time.time()
+        comando = limpiar_comando(comando)
+        tabla = comando.split(",")[0]
+        if len(tabla) == 0:
+            return False, "ERROR: SyntaxError: No table specified"
+        else:
+            fila = comando.split(",")[1]
+            if len(fila) == 0:
+                return False, "ERROR: SyntaxError: No row specified"
+            else:
+                columna = comando.split(",")[2]
+                familia = columna.split(":")[0]
+                columna = columna.split(":")[1]
+                if len(columna) == 0:
+                    return False, "ERROR: SyntaxError: No column specified"
+                else:
+                    valor = comando.split(",")[3]
+                    if len(valor) == 0:
+                        return False, "ERROR: SyntaxError: No value specified"
+                    else:
+                        hbase.put(tabla, fila, familia, columna, valor)
+                        errores = hbase.get_errores()
+                        if len(errores) > 0:
+                            return False, "ERROR: " + errores[0]
+                        tiempo_final = time.time()
+                        return True, "0 row(s) in " + str(round(tiempo_final - tiempo_inicial, 2)) + " seconds"
+    except Exception as e:
+        print(e)
+        return False, "ERROR: Unexpected error inserting data"
+    
 if __name__ == "__main__":
     print("Hola mundo")
