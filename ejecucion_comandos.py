@@ -86,6 +86,7 @@ def ejecutar_create(comando):
         errores = hbase.get_errores()
         if len(errores) > 0:
             return False, "ERROR: " + errores[0]
+        time.sleep(random.uniform(0.1, 0.8))
         tiempo_final = time.time()
         return True, "0 row(s) in " + str(round(tiempo_final - tiempo_inicial, 2)) + " seconds"
     except Exception as e:
@@ -100,6 +101,8 @@ def ejecutar_list(comando):
         errores = hbase.get_errores()
         if len(errores) > 0:
             return False, "ERROR: " + errores[0]
+        time.sleep(random.uniform(0.1, 0.8))
+        
         tiempo_final = time.time()
         resultado = ""
         resultado += "TABLE\n"
@@ -124,6 +127,8 @@ def ejecutar_disable(comando):
         errores = hbase.get_errores()
         if len(errores) > 0:
             return False, "ERROR: " + errores[0]
+        time.sleep(random.uniform(0.1, 0.8))
+        
         tiempo_final = time.time()
         return True, "0 row(s) in " + str(round(tiempo_final - tiempo_inicial, 2)) + " seconds"
     except Exception as e:
@@ -142,6 +147,8 @@ def ejecutar_enable(comando):
         errores = hbase.get_errores()
         if len(errores) > 0:
             return False, "ERROR: " + errores[0]
+        time.sleep(random.uniform(0.1, 0.8))
+        
         tiempo_final = time.time()
         return True, "0 row(s) in " + str(round(tiempo_final - tiempo_inicial, 2)) + " seconds"
     except Exception as e:
@@ -161,6 +168,8 @@ def ejecutar_is_enable(comando):
         errores = hbase.get_errores()
         if len(errores) > 0:
             return False, "ERROR: " + errores[0]
+        time.sleep(random.uniform(0.1, 0.8))
+        
         tiempo_final = time.time()
         return True, str(enabled) + "\n" + "0 row(s) in " + str(round(tiempo_final - tiempo_inicial, 2)) + " seconds"
     except Exception as e:
@@ -181,6 +190,8 @@ def ejecutar_describe(comando):
         errores = hbase.get_errores()
         if len(errores) > 0:
             return False, "ERROR: " + errores[0]
+        time.sleep(random.uniform(0.1, 0.8))
+        
         tiempo_final = time.time()
         resultado = ""
         resultado += "DESCRIPTION\n"
@@ -217,6 +228,8 @@ def ejecutar_alter(comando):
         errores = hbase.get_errores()
         if len(errores) > 0:
             return False, "ERROR: " + errores[0]
+        time.sleep(random.uniform(0.1, 0.8))
+        
         tiempo_final = time.time()
         return True, "Updating all regions with the new schema...\n0/1 regions updated.\n1/1 regions updated.\nDone.\n0 row(s) in " + str(round(tiempo_final - tiempo_inicial, 2)) + " seconds"
     except Exception as e:
@@ -234,6 +247,8 @@ def ejecutar_drop(comando):
         errores = hbase.get_errores()
         if len(errores) > 0:
             return False, "ERROR: " + errores[0]
+        time.sleep(random.uniform(0.1, 0.8))
+        
         tiempo_final = time.time()
         return True, "0 row(s) in " + str(round(tiempo_final - tiempo_inicial, 2)) + " seconds"
     except Exception as e:
@@ -252,6 +267,8 @@ def ejecutar_drop_all(comando):
         cont = len(files)
         if len(errores) > 0:
             return False, "ERROR: " + errores[0]
+        time.sleep(random.uniform(0.1, 0.8))
+        
         tiempo_final = time.time()
         return True, "\n".join(files) + "\n" + "droping the above " + str(cont) + " tables\n0 row(s) in " + str(round(tiempo_final - tiempo_inicial, 2)) + " seconds"
     except Exception as e:
@@ -285,6 +302,8 @@ def ejecutar_put(comando):
                         errores = hbase.get_errores()
                         if len(errores) > 0:
                             return False, "ERROR: " + errores[0]
+                        time.sleep(random.uniform(0.1, 0.8))
+                        
                         tiempo_final = time.time()
                         return True, "0 row(s) in " + str(round(tiempo_final - tiempo_inicial, 2)) + " seconds"
     except Exception as e:
@@ -326,6 +345,8 @@ def ejecutar_get(comando):
                 for key, value in resultado_get.items():
                     resultado += f"{key}: {value}\n"
                 cont = len(resultado_get)
+                time.sleep(random.uniform(0.1, 0.8))
+
                 tiempo_final = time.time()
                 return True, resultado + "\n" + str(cont) + " row(s) in " + str(round(tiempo_final - tiempo_inicial, 2)) + " seconds"
     except Exception as e:
@@ -384,6 +405,8 @@ def ejecutar_deleteall(comando):
                 errores = hbase.get_errores()
                 if len(errores) > 0:
                     return False, "ERROR: " + errores[0]
+                time.sleep(random.uniform(0.1, 0.8))
+                
                 tiempo_final = time.time()
                 return True, "0 row(s) in " + str(round(tiempo_final - tiempo_inicial, 2)) + " seconds"
     except Exception as e:
@@ -475,6 +498,9 @@ hbase(main):005:0> scan 'my_table', {LIMIT => 10}
 def ejecutar_scan(comando):
     try:
         tiempo_inicial = time.time()
+        
+        # Buscar todo lo que está dentro de comillas dobles
+         
         match = re.findall(r'\"(.*?)\"', comando)
         opciones = None
         if match:
@@ -485,10 +511,6 @@ def ejecutar_scan(comando):
             return False, "ERROR: SyntaxError: No table specified"
         else:
             resultado_scan = None
-            
-
-            # Buscar todo lo que está dentro de comillas dobles
-         
 
             if len(comando.split(",")) == 1:
                 resultado_scan = hbase.scan(tabla)
