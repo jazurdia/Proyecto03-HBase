@@ -61,11 +61,17 @@ def list_tables():
 
 def disable_table(table_name: str):
     hfile = load_table(table_name)
+    if hfile.metadata == None or hfile.data == None:
+        errores.append("Table does not exist")
+        return False
     hfile.metadata["enabled"] = False
     save_table(hfile)
 
 def enable_table(table_name: str):
     hfile = load_table(table_name)
+    if hfile.metadata == None or hfile.data == None:
+        errores.append("Table does not exist")
+        return False
     hfile.metadata["enabled"] = True
     save_table(hfile)
 
