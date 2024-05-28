@@ -18,8 +18,8 @@
                         "value": "value1"
                     },
                     {
-                        "timeStamp": 1716869931,
-                        "value": "value1"
+                        "timeStamp": null,
+                        "value": ""
                     }
                 ],
                 "column2": [

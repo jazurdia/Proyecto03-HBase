@@ -13,6 +13,7 @@ def limpiar_comando(comando):
     comando = comando.replace("alter", "")
     comando = comando.replace("put", "")
     comando = comando.replace("get", "")
+    comando = comando.replace("delete", "")
     comando = comando.replace("'", "")
     comando = comando.replace("(", "")
     comando = comando.replace(")", "")
@@ -50,6 +51,8 @@ def identificar_comando(comando):
         return ejecutar_put(comando)
     elif comando.startswith("get"):
         return ejecutar_get(comando)
+    elif comando.startswith("delete"):
+        return ejecutar_delete(comando)
     else:
         return False, "ERROR: Command not found"
     
@@ -314,6 +317,42 @@ def ejecutar_get(comando):
     except Exception as e:
         print(e)
         return False, "ERROR: Unexpected error getting data"
+    
+def ejecutar_delete(comando):
+# hbase(main):001:0> delete 'my_table', 'row1', 'cf1:column1'
+# hbase(main):003:0> delete 'my_table', 'row1', 'cf1'
+# hbase(main):004:0> delete 'my_table', 'row1'
+    try:
+        tiempo_inicial = time.time()
+        comando = limpiar_comando(comando)
+        tabla = comando.split(",")[0]
+        if len(tabla) == 0:
+            return False, "ERROR: SyntaxError: No table specified"
+        else:
+            fila = comando.split(",")[1]
+            if len(fila) == 0:
+                return False, "ERROR: SyntaxError: No row specified"
+            else:
+                if len(comando.split(",")) == 2:
+                    hbase.delete(tabla, fila)
+                elif len(comando.split(",")) == 3:
+                    columna = comando.split(",")[2]
+                    if len(columna) == 0:
+                        return False, "ERROR: SyntaxError: No column specified"
+                    else:
+                        hbase.delete(tabla, fila, columna)
+                elif len(comando.split(",")) > 3:
+                    #tomar como columnas todas las que estan despues de la posicion 1
+                    columnas = comando.split(",")[2:]
+                    hbase.delete(tabla, fila, columnas)
+                errores = hbase.get_errores()
+                if len(errores) > 0:
+                    return False, "ERROR: " + errores[0]
+                tiempo_final = time.time()
+                return True, "0 row(s) in " + str(round(tiempo_final - tiempo_inicial, 2)) + " seconds"
+    except Exception as e:
+        print(e)
+        return False, "ERROR: Unexpected error deleting data"
     
 if __name__ == "__main__":
     print("Hola mundo")
