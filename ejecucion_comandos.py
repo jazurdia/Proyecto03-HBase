@@ -76,6 +76,7 @@ def ejecutar_create(comando):
     try:
         tiempo_inicial = time.time()
         comando = limpiar_comando(comando)
+        comando = comando.split(",")
         tabla = comando[0]
         columnas = comando[1:]
         if len(columnas) == 0:
