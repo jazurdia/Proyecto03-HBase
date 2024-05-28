@@ -476,7 +476,7 @@ def ejecutar_truncate(comando):
         #un tiempo de espera sleep random entre 0.1 y 0.8
         time.sleep(random.uniform(0.1, 0.8))
         tiempo_final = time.time()
-        return True, "0 row(s) in " + str(round(tiempo_final - tiempo_inicial, 2)) + " seconds"
+        return True, "Disabling table...\nTruncating table... \nEnabling table...\n0 row(s) in " + str(round(tiempo_final - tiempo_inicial, 2)) + " seconds"
     except Exception as e:
         print(e)
         return False, "ERROR: Unexpected error truncating table"

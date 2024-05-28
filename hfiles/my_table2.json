@@ -1,0 +1,13 @@
+{
+    "data": {
+        "index_column": [],
+        "families": {
+            "cf": {}
+        }
+    },
+    "metadata": {
+        "enabled": true,
+        "name": "my_table2",
+        "creation_timeStamp": 1716940416
+    }
+}
