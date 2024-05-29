@@ -1,5 +1,8 @@
 # Simulación de HBase README
 
+## Video
+https://www.youtube.com/watch?v=R0GwtHxScwE
+
 ## Introducción
 
 Este proyecto simula la funcionalidad de HBase, un almacén de datos distribuido y escalable para big data. La simulación incluye la creación y gestión de tablas, columnas y filas, utilizando archivos JSON para almacenar los datos de manera similar a los HFiles de HBase.
@@ -97,4 +100,5 @@ La implementación proporciona varios comandos similares a los de HBase para int
 ### Clase Hfile
 
 La clase `Hfile` maneja la interacción con los archivos JSON que representan las tablas en el sistema. Se encarga de cargar y guardar estos archivos, asegurando que los datos y metadatos estén correctamente manejados.
+
 
