@@ -2,7 +2,45 @@ import Hbase as b
 import os
 
 os.system("cls")
-res = b.scan('tablaGrande', startrow='row5', stoprow='row8')
+
+
+"""
+Pruebas con PUT
+
+Insertar un registro en "prueba2" con un valor de CQ en cada CF
+Actualizar la celda de "prueba2" CF2
+Actualizar la celda de "prueba2" CF2 otra vez
+Actualizar la celda de "prueba2" CF2 otra vez
+Mostrar los cambios en el archivo de la tabla, con las 3 versiones de la celda
+
+"""
+
+print(f"Prueba con PUT - Actualizar una celda CF2 ")
+b.put('example2', 'row1', 'cf1', 'col1', 'nuevo valor en row 1 cf1 col1')
+
+
+b.put('example2', 'row1', 'col1', 'valor que no deberia permitirse')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""res = b.scan('tablaGrande', startrow='row5', stoprow='row8')
 for each in res:
     print(f"\n{each}")
 
@@ -44,4 +82,4 @@ print(res)
 print("\n\n")
 print("b.get('example2', 'row1', column_family='cf1')")
 res = b.get('example2', 'row1', family='cf1')
-print(res)
+print(res)"""
