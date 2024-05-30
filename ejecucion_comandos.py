@@ -312,31 +312,33 @@ def ejecutar_put(comando):
         return False, "ERROR: Unexpected error inserting data"
     
 def ejecutar_get(comando):
-    # get 'mi_tabla', 'fila1'
-    #o 
-    #get 'my_table', 'row1', 'cf1'
     try:
         tiempo_inicial = time.time()
         comando = limpiar_comando(comando)
-        tabla = comando.split(",")[0]
+        partes = comando.split(",")
+        tabla = partes[0]
         if len(tabla) == 0:
             return False, "ERROR: SyntaxError: No table specified"
         else:
-            fila = comando.split(",")[1]
+            fila = partes[1]
             if len(fila) == 0:
                 return False, "ERROR: SyntaxError: No row specified"
             else:
-                if len(comando.split(",")) == 2:
+                if len(partes) == 2:
                     resultado_get = hbase.get(tabla, fila)
-                elif len(comando.split(",")) == 3:
-                    columna = comando.split(",")[2]
+                elif len(partes) == 3:
+                    columna = partes[2]
                     if len(columna) == 0:
                         return False, "ERROR: SyntaxError: No column specified"
                     else:
-                        resultado_get = hbase.get(tabla, fila, columna)
-                elif len(comando.split(",")) > 3:
-                    #tomar como columnas todas las que estan despues de la posicion 1
-                    columnas = comando.split(",")[2:]
+                        if ':' in columna:  # Si es una columna específica
+                            family, column = columna.split(':')
+                            resultado_get = hbase.get(tabla, fila, family, column)
+                        else:  # Si es una familia de columnas
+                            resultado_get = hbase.get(tabla, fila, columna)
+                elif len(partes) > 3:
+                    # tomar como columnas todas las que estan despues de la posicion 1
+                    columnas = partes[2:]
                     resultado_get = hbase.get(tabla, fila, columnas)
 
                 errores = hbase.get_errores()

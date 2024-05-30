@@ -254,6 +254,7 @@ get 'example2', 'row1'
 get 'example2', 'row1', 'cf1:col1'
 get 'example2', 'row1', 'cf1'
 """
+
 def get(table_name, row_key, family=None, column=None):
     hfile = load_table(table_name)
     
