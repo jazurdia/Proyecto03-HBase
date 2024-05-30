@@ -462,10 +462,8 @@ Elementos completos
 hbase(main):001:0> scan 'my_table'
 hbase(main):002:0> scan 'my_table', {STARTROW => 'row1', STOPROW => 'row10'}
 hbase(main):003:0> scan 'my_table', {COLUMNS => ['cf1:column1', 'cf2:column2']}
-hbase(main):004:0> scan 'my_table', {FILTER => "ValueFilter(=, 'binary:value1')"}
 hbase(main):005:0> scan 'my_table', {LIMIT => 10}
 """
-
 
 def scan(table_name, **options):
     hfile = load_table(table_name)
@@ -493,7 +491,7 @@ def scan(table_name, **options):
         start_index = next((i for i, row in enumerate(hfile.data["index_column"]) if row["value"] == start_row), start_index)
     
     if stop_row is not None:
-        stop_index = next((i for i, row in enumerate(hfile.data["index_column"]) if row["value"] == stop_row), stop_index)
+        stop_index = next((i for i, row in enumerate(hfile.data["index_column"]) if row["value"] == stop_row), stop_index + 1)
 
     for row_index in range(start_index, stop_index):
         row_data = hfile.data["index_column"][row_index]
@@ -521,7 +519,6 @@ def eval_filter(cell, filter_expression):
             value = match.group(1)
             return cell["value"] == value
     return True
-
 
 
 

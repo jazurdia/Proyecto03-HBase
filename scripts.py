@@ -17,10 +17,12 @@ for row in res:
     print(row)
     counter -= 1
 
-# hbase(main):004:0> scan 'my_table', {FILTER => "ValueFilter(=, 'binary:value1')"}
-print("\n\n")
 
-print("b.scan('example2', filter='ValueFilter(=, \'binary:row1\')')")
-res = b.scan('example2', filter='ValueFilter(=, \'binary:row1\')')
+
+# hbase(main):005:0> scan 'my_table', {LIMIT => 10}
+print("\n\n")
+print("b.scan('tablaGrande', limit=10)")
+res = b.scan('tablaGrande', limit=10)
+
 for row in res:
     print(row)
