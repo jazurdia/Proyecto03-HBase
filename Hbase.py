@@ -41,8 +41,6 @@ def create_table(table_name, families=None):
     else:
         errores.append("Table already exists")
 
-
-
 def load_table(table_name):
     return Hfile(table_name)
 
@@ -80,8 +78,6 @@ def is_enable(hfile):
     return hfile.metadata["enabled"]
         
 ## metodos para usarse en alter_table. 
-
-
 def add_column_families(hfile, family_names): 
     if hfile.metadata["enabled"]:
         for family_name in family_names:
@@ -91,7 +87,6 @@ def add_column_families(hfile, family_names):
     else:
         errores.append("Table is disabled")
         return False
-
 
 def delete_column_families(hfile, family_names): 
     if hfile.metadata["enabled"]:
@@ -108,7 +103,6 @@ def delete_column_families(hfile, family_names):
 
 
 # valdria la pena pensar si alter debería ser manejado desde el frontend, o si se hace un método alter. 
-
 # alter 'my_table', 'new_cf' 
 # o 
 # alter 'my_table', {NAME => 'old_cf', METHOD => 'delete'}
@@ -122,8 +116,6 @@ def alter_table(table_name, family_names, method=None):
     else:
         return add_column_families(hfile, family_names)
     
-
-
 # Drop
 def drop_table(name: str):
     table = load_table(name)

@@ -1,0 +1,125 @@
+{
+    "data": {
+        "index_column": [
+            {
+                "timeStamp": 1717028933,
+                "value": "row1"
+            },
+            {
+                "timeStamp": 1717028933,
+                "value": "row2"
+            },
+            {
+                "timeStamp": 1717028933,
+                "value": "row3"
+            },
+            {
+                "timeStamp": 1717028933,
+                "value": "row4"
+            },
+            {
+                "timeStamp": 1717028933,
+                "value": "row5"
+            }
+        ],
+        "families": {
+            "cf1": {
+                "col1": [
+                    {
+                        "timeStamp": 1717028933,
+                        "value": "table example 2 row1cf1col1"
+                    },
+                    {
+                        "timeStamp": 1717028933,
+                        "value": "table example 2 row2cf1col1"
+                    },
+                    {
+                        "timeStamp": 1717028933,
+                        "value": "table example 2 row3cf1col1"
+                    },
+                    {
+                        "timeStamp": 1717028933,
+                        "value": "table example 2 row4cf1col1"
+                    },
+                    {
+                        "timeStamp": 1717028933,
+                        "value": "table example 2 row5cf1col1"
+                    }
+                ],
+                "col2": [
+                    {
+                        "timeStamp": 1717028933,
+                        "value": "table example 2 row1cf1col2"
+                    },
+                    {
+                        "timeStamp": 1717028933,
+                        "value": "table example 2 row2cf1col2"
+                    },
+                    {
+                        "timeStamp": 1717028933,
+                        "value": "table example 2 row3cf1col2"
+                    },
+                    {
+                        "timeStamp": 1717028933,
+                        "value": "table example 2 row4cf1col2"
+                    },
+                    {
+                        "timeStamp": 1717028933,
+                        "value": "table example 2 row5cf1col2"
+                    }
+                ]
+            },
+            "cf2": {
+                "col1": [
+                    {
+                        "timeStamp": 1717028933,
+                        "value": "table example 2 row1cf2col1"
+                    },
+                    {
+                        "timeStamp": 1717028933,
+                        "value": "table example 2 row2cf2col1"
+                    },
+                    {
+                        "timeStamp": 1717028933,
+                        "value": "table example 2 row3cf2col1"
+                    },
+                    {
+                        "timeStamp": 1717028933,
+                        "value": "table example 2 row4cf2col1"
+                    },
+                    {
+                        "timeStamp": 1717028933,
+                        "value": "table example 2 row5cf2col1"
+                    }
+                ],
+                "col2": [
+                    {
+                        "timeStamp": 1717028933,
+                        "value": "table example 2 row1cf2col2"
+                    },
+                    {
+                        "timeStamp": 1717028933,
+                        "value": "table example 2 row2cf2col2"
+                    },
+                    {
+                        "timeStamp": 1717028933,
+                        "value": "table example 2 row3cf2col2"
+                    },
+                    {
+                        "timeStamp": 1717028933,
+                        "value": "table example 2 row4cf2col2"
+                    },
+                    {
+                        "timeStamp": 1717028933,
+                        "value": "table example 2 row5cf2col2"
+                    }
+                ]
+            }
+        }
+    },
+    "metadata": {
+        "enabled": true,
+        "name": "example2",
+        "creation_timeStamp": 1717028933
+    }
+}
