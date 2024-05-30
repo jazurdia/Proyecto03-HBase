@@ -248,7 +248,13 @@ def put(table_name, row_key, family, column, value):
     save_table(hfile)
     return True
 
-def get(table_name, row_key, columns=None):
+
+"""
+get 'example2', 'row1'
+get 'example2', 'row1', 'cf1:col1'
+get 'example2', 'row1', 'cf1'
+"""
+def get(table_name, row_key, family=None, column=None):
     hfile = load_table(table_name)
     
     if hfile.data is None or hfile.metadata is None:
@@ -266,8 +272,8 @@ def get(table_name, row_key, columns=None):
         errores.append("Row does not exist")
         return None
 
-    # Si no se especifican columnas, devolver todas las familias y columnas para la fila
-    if columns is None:
+    # Si no se especifica una familia, devolver todas las familias y columnas para la fila
+    if family is None:
         result = {}
         for family in hfile.data["families"]:
             result[family] = {}
@@ -275,42 +281,26 @@ def get(table_name, row_key, columns=None):
                 result[family][column] = hfile.data["families"][family][column][row_index]
         return result
 
-    # Si se especifica una familia o columna
-    if isinstance(columns, str):
-        if ':' in columns:
-            family, column = columns.split(':')
-            if family in hfile.data["families"] and column in hfile.data["families"][family]:
-                return hfile.data["families"][family][column][row_index]
-            else:
-                errores.append("Family or column does not exist")
-                return None
+    # Si se especifica una familia pero no una columna
+    if column is None:
+        if family in hfile.data["families"]:
+            result = {family: {}}
+            for column in hfile.data["families"][family]:
+                result[family][column] = hfile.data["families"][family][column][row_index]
+            return result
         else:
-            family = columns
-            if family in hfile.data["families"]:
-                result = {}
-                for column in hfile.data["families"][family]:
-                    result[column] = hfile.data["families"][family][column][row_index]
-                return result
-            else:
-                errores.append("Family does not exist")
-                return None
+            errores.append("Family does not exist")
+            return None
 
-    # Si se especifica una lista de columnas
-    if isinstance(columns, list):
-        result = {}
-        for item in columns:
-            if ':' in item:
-                family, column = item.split(':')
-                if family in hfile.data["families"] and column in hfile.data["families"][family]:
-                    if family not in result:
-                        result[family] = {}
-                    result[family][column] = hfile.data["families"][family][column][row_index]
-                else:
-                    errores.append(f"Family or column {item} does not exist")
-        return result
+    # Si se especifica una familia y una columna
+    if family in hfile.data["families"] and column in hfile.data["families"][family]:
+        return {family: {column: hfile.data["families"][family][column][row_index]}}
+    else:
+        errores.append("Family or column does not exist")
+        return None
 
-    errores.append("Invalid columns parameter")
-    return None
+
+
 # hbase(main):001:0> delete 'my_table', 'row1', 'cf1:column1'
 # hbase(main):003:0> delete 'my_table', 'row1', 'cf1'
 
