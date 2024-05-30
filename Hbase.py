@@ -465,6 +465,8 @@ hbase(main):003:0> scan 'my_table', {COLUMNS => ['cf1:column1', 'cf2:column2']}
 hbase(main):004:0> scan 'my_table', {FILTER => "ValueFilter(=, 'binary:value1')"}
 hbase(main):005:0> scan 'my_table', {LIMIT => 10}
 """
+
+
 def scan(table_name, **options):
     hfile = load_table(table_name)
 
@@ -519,6 +521,7 @@ def eval_filter(cell, filter_expression):
             value = match.group(1)
             return cell["value"] == value
     return True
+
 
 
 
