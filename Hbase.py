@@ -484,15 +484,16 @@ def scan(table_name, **options):
 
     result = []
     row_indices = range(len(hfile.data["index_column"]))
+    start_index = 0
+    stop_index = len(hfile.data["index_column"])
+
     if start_row is not None:
-        start_index = next((i for i, row in enumerate(hfile.data["index_column"]) if row["value"] == start_row), None)
-        row_indices = range(start_index, len(hfile.data["index_column"])) if start_index is not None else row_indices
-
+        start_index = next((i for i, row in enumerate(hfile.data["index_column"]) if row["value"] == start_row), start_index)
+    
     if stop_row is not None:
-        stop_index = next((i for i, row in enumerate(hfile.data["index_column"]) if row["value"] == stop_row), None)
-        row_indices = range(min(row_indices.start, row_indices.stop, stop_index)) if stop_index is not None else row_indices
+        stop_index = next((i for i, row in enumerate(hfile.data["index_column"]) if row["value"] == stop_row), stop_index)
 
-    for row_index in row_indices:
+    for row_index in range(start_index, stop_index):
         row_data = hfile.data["index_column"][row_index]
         row_result = {"row": row_data["value"], "columns": {}}
 
@@ -513,8 +514,7 @@ def scan(table_name, **options):
 
 def eval_filter(cell, filter_expression):
     if "ValueFilter" in filter_expression or "valuefilter" in filter_expression:
-        #match = re.match(r"ValueFilter\(\s*=\s*,\s*'binary:(.+)'\s*\)", filter_expression)
-        match = re.match(r"valuefilter\(\s*=\s*,\s*'binary:(.+)'\s*\)", filter_expression) #if not match  else match
+        match = re.match(r"valuefilter\(\s*=\s*,\s*'binary:(.+)'\s*\)", filter_expression.lower())
         if match:
             value = match.group(1)
             return cell["value"] == value
@@ -529,17 +529,6 @@ def pretty_print_json(json_data):
 if __name__ == "__main__":
     os.system("cls")
 
-    # Ejemplos de uso
-    result1 = scan('my_table', STARTROW='row1')
-    print(f"scan my_table, STARTROW='row1'-> {result1}\n\n")
-
-    result2 = scan('my_table', COLUMNS=['cf1:column1', 'cf2:column2'])
-    print(f"scan my_table, COLUMNS=['cf1:column1', 'cf2:column2']-> {result2}\n\n")
-
-    result3 = scan('my_table', FILTER="ValueFilter(=, 'binary:value1')")
-    print(f"scan my_table, FILTER=\"ValueFilter(=, 'binary:value1') -> {result3}\n\n")
-
-    result4 = scan('my_table', LIMIT=10)
-    print(f"scan my_table, LIMIT=10-> {result4}\n\n")
+    # probar scan para este caso: hbase(main):002:0> scan 'my_table', {STARTROW => 'row1', STOPROW => 'row10'}
 
     
